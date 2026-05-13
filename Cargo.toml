@@ -1,0 +1,7 @@
+[workspace]
+name = "task-manager"
+members = [
+    "crates/domain",
+]
+
+resolver = "2"
