@@ -1,6 +1,6 @@
-mod aggregate;
-mod errors;
-mod events;
-mod value_objects;
+pub mod aggregate;
+pub mod repository;
 
-pub use aggregate::Task;
+pub mod errors;
+pub mod events;
+pub mod value_objects;

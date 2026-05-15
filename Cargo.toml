@@ -1,7 +1,22 @@
 [workspace]
 name = "task-manager"
 members = [
+    "crates/application",
     "crates/domain",
 ]
 
 resolver = "2"
+
+[workspace.dependencies]
+chrono = { version = "0.4.44", features = ["serde"] }
+serde = { version = "1.0.228", features = ["derive"] }
+async-trait = "0.1.89"
+thiserror = "2.0.18"
+uuid = { version = "1.23.1", features = ["serde", "v4"] }
+domain = { path = "crates/domain" }
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+authors = ["Graduss"]
