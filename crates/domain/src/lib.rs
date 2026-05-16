@@ -1,16 +1,6 @@
-pub mod task;
+mod task;
 
-// pub fn add(left: u64, right: u64) -> u64 {
-//     left + right
-// }
-
-#[cfg(test)]
-mod tests {
-    // use super::*;
-
-    // #[test]
-    // fn it_works() {
-    //     let result = add(2, 2);
-    //     assert_eq!(result, 4);
-    // }
-}
+pub use task::{
+    aggregate::Task, errors::DomainError, events::TaskEvent, repository::TaskRepository,
+    value_objects::*,
+};

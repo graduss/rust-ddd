@@ -6,7 +6,7 @@ use super::{aggregate::Task, errors::DomainError, value_objects::TaskId};
 pub trait TaskRepository: Send + Sync {
     async fn save(&self, task: &Task) -> Result<(), DomainError>;
 
-    async fn find_by_id(&self, id: &TaskId) -> Result<Option<Task>, DomainError>;
+    async fn find_by_id(&self, id: &TaskId) -> Option<Task>;
 
     async fn find_all(&self) -> Result<Vec<Task>, DomainError>;
 

@@ -6,7 +6,7 @@ use crate::task::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Task {
     // Identity
     id: TaskId,
@@ -178,6 +178,10 @@ impl Task {
 
     pub fn pending_events(&self) -> &[TaskEvent] {
         &self.domain_events
+    }
+
+    pub fn extract_events(&mut self) -> Vec<TaskEvent> {
+        std::mem::take(&mut self.domain_events)
     }
 
     fn transition_to(&mut self, status: TaskStatus) {

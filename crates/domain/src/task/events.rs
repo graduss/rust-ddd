@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 
 use super::value_objects::{TaskDescription, TaskId, TaskStatus, TaskTitle};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskCreated {
     pub id: TaskId,
     pub title: TaskTitle,
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskStatusChanged {
     pub id: TaskId,
     pub new_status: TaskStatus,
@@ -18,7 +18,7 @@ pub struct TaskStatusChanged {
     pub changed_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskUpdated {
     pub id: TaskId,
     pub title: Option<TaskTitle>,
@@ -26,13 +26,13 @@ pub struct TaskUpdated {
     pub changed_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskDeleted {
     pub id: TaskId,
     pub changed_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TaskEvent {
     Created(TaskCreated),
     StatusChanged(TaskStatusChanged),

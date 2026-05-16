@@ -45,14 +45,14 @@ impl TryFrom<&str> for TaskTitle {
     type Error = DomainError;
 
     fn try_from(title: &str) -> Result<Self, Self::Error> {
-        let title = title.trim().to_string();
+        let title = title.trim();
         if title.is_empty() {
             return Err(DomainError::EmptyTitle);
         }
         if title.len() > MAX_TITLE_LENGTH {
             return Err(DomainError::TitleTooLong(title.len()));
         }
-        Ok(Self(title))
+        Ok(Self(title.to_owned()))
     }
 }
 
@@ -78,11 +78,11 @@ impl TryFrom<&str> for TaskDescription {
     type Error = DomainError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let description = value.to_string();
+        let description = value;
         if description.len() > MAX_DESCRIPTION_LENGTH {
             return Err(DomainError::DescriptionTooLong(description.len()));
         }
-        Ok(Self(description))
+        Ok(Self(description.to_owned()))
     }
 }
 
