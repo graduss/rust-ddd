@@ -92,3 +92,10 @@ pub async fn seed_tesk(
     repo.save(&task).await?;
     Ok(id)
 }
+
+pub fn init_di() -> (Arc<MockTaskRepository>, Arc<MockEventPublisher>) {
+    (
+        Arc::new(MockTaskRepository::default()),
+        Arc::new(MockEventPublisher::new()),
+    )
+}
