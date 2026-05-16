@@ -65,14 +65,14 @@ impl<R: TaskRepository, P: EventPublisher> UseCase for ChangeStatusHandler<R, P>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mocks::{init_di, seed_tesk};
+    use crate::mocks::mocks::{init_di, seed_task};
     use domain::{DomainError, TaskId, TaskStatus};
 
     #[tokio::test]
     async fn test_change_status() -> Result<(), ApplicationError> {
         let (repo, publisher) = init_di();
         let handler = ChangeStatusHandler::new(repo.clone(), publisher.clone());
-        let id = seed_tesk(repo.clone(), "test").await?;
+        let id = seed_task(repo.clone(), "test").await?;
         let cmd = ChangeStatusCommand {
             task_id: id.clone(),
             action: StatusAction::Start,
@@ -91,7 +91,7 @@ mod tests {
     async fn test_change_status_error() -> Result<(), ApplicationError> {
         let (repo, publisher) = init_di();
         let handler = ChangeStatusHandler::new(repo.clone(), publisher.clone());
-        let task_id = seed_tesk(repo, "test_change_status_error").await?;
+        let task_id = seed_task(repo, "test_change_status_error").await?;
         let cmd = ChangeStatusCommand {
             task_id: task_id.clone(),
             action: StatusAction::Complete,

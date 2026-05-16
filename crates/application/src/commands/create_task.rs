@@ -48,7 +48,7 @@ impl<R: TaskRepository, P: EventPublisher> UseCase for CreateTaskHandler<R, P> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mocks::{MockEventPublisher, MockTaskRepository, seed_tesk};
+    use crate::mocks::mocks::{MockEventPublisher, MockTaskRepository, seed_task};
 
     #[tokio::test]
     async fn create_task_and_returns_id() {
@@ -72,7 +72,7 @@ mod tests {
 
     #[tokio::test]
     async fn create_task_rejects_invalid_title() {
-        let result = seed_tesk(Arc::new(MockTaskRepository::new()), "").await;
+        let result = seed_task(Arc::new(MockTaskRepository::new()), "").await;
         assert!(result.is_err());
         assert!(matches!(
             result,
