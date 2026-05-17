@@ -9,3 +9,4 @@ domain.workspace = true
 async-trait.workspace = true
 serde.workspace = true
 tokio.workspace = true
+chrono.workspace = true

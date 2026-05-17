@@ -176,6 +176,14 @@ impl Task {
         &self.status
     }
 
+    pub fn created_at(&self) -> &DateTime<Utc> {
+        &self.created_at
+    }
+
+    pub fn updated_at(&self) -> &DateTime<Utc> {
+        &self.updated_at
+    }
+
     pub fn pending_events(&self) -> &[TaskEvent] {
         &self.domain_events
     }

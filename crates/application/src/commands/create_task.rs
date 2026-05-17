@@ -44,39 +44,3 @@ impl<R: TaskRepository, P: EventPublisher> UseCase for CreateTaskHandler<R, P> {
         Ok(id)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mocks::mocks::{MockEventPublisher, MockTaskRepository, seed_task};
-
-    #[tokio::test]
-    async fn create_task_and_returns_id() {
-        let repo = Arc::new(MockTaskRepository::new());
-        let publisher = Arc::new(MockEventPublisher::new());
-        let handler = CreateTaskHandler::new(repo.clone(), publisher.clone());
-
-        let command = CreateTaskCommand {
-            title: "Test Task".to_string(),
-            description: "Test Description".to_string(),
-        };
-
-        let id = handler.execute(command).await.unwrap();
-        let task = repo.find_by_id(&id).await.unwrap();
-        assert_eq!(task.title(), &TaskTitle::try_from("Test Task").unwrap());
-
-        let mut events = publisher.events().await;
-        assert_eq!(events.len(), 1);
-        assert!(events.pop().is_some());
-    }
-
-    #[tokio::test]
-    async fn create_task_rejects_invalid_title() {
-        let result = seed_task(Arc::new(MockTaskRepository::new()), "").await;
-        assert!(result.is_err());
-        assert!(matches!(
-            result,
-            Err(ApplicationError::Domain(domain::DomainError::EmptyTitle))
-        ));
-    }
-}

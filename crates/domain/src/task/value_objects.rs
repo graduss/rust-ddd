@@ -23,6 +23,12 @@ impl From<Uuid> for TaskId {
     }
 }
 
+impl From<&Uuid> for TaskId {
+    fn from(uuid: &Uuid) -> Self {
+        uuid.clone().into()
+    }
+}
+
 impl Deref for TaskId {
     type Target = Uuid;
 
