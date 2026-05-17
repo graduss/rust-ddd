@@ -1,3 +1,5 @@
+//! The `task` bounded context — aggregate, value objects, events, errors, and repository trait.
+
 pub mod aggregate;
 pub mod repository;
 

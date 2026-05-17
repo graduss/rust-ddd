@@ -8,10 +8,13 @@ const MAX_TITLE_LENGTH: usize = 255;
 const MAX_DESCRIPTION_LENGTH: usize = 2000;
 
 // --- TaskId -----
+
+/// Newtype wrapper around [`Uuid`] that prevents accidental mixing with other IDs.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct TaskId(Uuid);
 
 impl TaskId {
+    /// Generates a new random v4 UUID.
     pub fn new() -> Self {
         Self(Uuid::new_v4())
     }
@@ -43,7 +46,12 @@ impl std::fmt::Display for TaskId {
     }
 }
 
-//--- TaskTitle -----
+// --- TaskTitle -----
+
+/// A non-empty, trimmed task title of at most 255 characters.
+///
+/// Constructed via `TryFrom<&str>`; invariants are enforced at the boundary so callers
+/// can trust that any `TaskTitle` value is valid.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TaskTitle(String);
 
@@ -76,7 +84,9 @@ impl std::fmt::Display for TaskTitle {
     }
 }
 
-//--- TaskDescription -----
+// --- TaskDescription -----
+
+/// An optional task description of at most 2000 characters (empty string is allowed).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TaskDescription(String);
 
@@ -107,6 +117,14 @@ impl std::fmt::Display for TaskDescription {
 }
 
 // --- TaskStatus -----
+
+/// Lifecycle state of a task.
+///
+/// ```text
+/// Todo ──start()──► InProgress ──complete()──► Completed ──reopen()──► Todo
+///  │                    │
+///  └───cancel()────────►┘──► Cancelled
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TaskStatus {
     Todo,
@@ -116,6 +134,10 @@ pub enum TaskStatus {
 }
 
 impl TaskStatus {
+    /// Returns `true` for terminal states where edits are no longer allowed.
+    ///
+    /// Both `Completed` and `Cancelled` are terminal — the name is slightly misleading
+    /// but intentional: it signals "done in some final sense."
     pub fn is_completed(&self) -> bool {
         matches!(self, TaskStatus::Completed | TaskStatus::Cancelled)
     }

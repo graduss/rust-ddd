@@ -6,6 +6,10 @@ use crate::task::{
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+/// Aggregate root for the task bounded context.
+///
+/// All business rules and the status state machine live here.
+/// Callers interact only through the public methods; direct field mutation is not possible.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Task {
     // Identity
@@ -20,11 +24,15 @@ pub struct Task {
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 
+    /// Skipped during serialisation; the caller drains events via [`Task::extract_events`].
     #[serde(skip)]
     domain_events: Vec<TaskEvent>,
 }
 
 impl Task {
+    /// Creates a new task and emits a [`TaskEvent::Created`] event.
+    ///
+    /// Use this constructor only for new tasks. To reconstitute from storage use [`Task::recover`].
     pub fn create(title: TaskTitle, description: TaskDescription) -> Result<Self, DomainError> {
         let mut task = Self {
             id: TaskId::new(),
@@ -45,6 +53,7 @@ impl Task {
         Ok(task)
     }
 
+    /// Reconstitutes a task from persisted data without emitting any events.
     pub fn recover(
         id: TaskId,
         title: TaskTitle,
@@ -64,6 +73,7 @@ impl Task {
         }
     }
 
+    /// Transitions `Todo` → `InProgress`. Idempotent when already `InProgress`.
     pub fn start(&mut self) -> Result<(), DomainError> {
         match self.status {
             TaskStatus::Cancelled => Err(DomainError::TaskAlreadyCanceled),
@@ -76,6 +86,7 @@ impl Task {
         }
     }
 
+    /// Transitions `InProgress` → `Completed`. Idempotent when already `Completed`.
     pub fn complete(&mut self) -> Result<(), DomainError> {
         match self.status {
             TaskStatus::Cancelled => Err(DomainError::TaskAlreadyCanceled),
@@ -88,6 +99,7 @@ impl Task {
         }
     }
 
+    /// Transitions `Todo` or `InProgress` → `Cancelled`. Idempotent when already `Cancelled`.
     pub fn cancel(&mut self) -> Result<(), DomainError> {
         match self.status {
             TaskStatus::Cancelled => Ok(()),
@@ -99,6 +111,7 @@ impl Task {
         }
     }
 
+    /// Transitions `Completed` → `Todo`. Cancelled tasks cannot be reopened.
     pub fn reopen(&mut self) -> Result<(), DomainError> {
         match self.status {
             TaskStatus::Cancelled => Err(DomainError::CannotReopenCancelledTask),
@@ -110,6 +123,7 @@ impl Task {
         }
     }
 
+    /// Updates title and/or description. Rejected for tasks in a terminal state.
     pub fn update(
         &mut self,
         title: Option<TaskTitle>,
@@ -184,14 +198,17 @@ impl Task {
         &self.updated_at
     }
 
+    /// Borrows pending events without consuming them.
     pub fn pending_events(&self) -> &[TaskEvent] {
         &self.domain_events
     }
 
+    /// Drains and returns all pending events, leaving the internal buffer empty.
     pub fn extract_events(&mut self) -> Vec<TaskEvent> {
         std::mem::take(&mut self.domain_events)
     }
 
+    /// Updates status and appends a [`TaskEvent::StatusChanged`] event.
     fn transition_to(&mut self, status: TaskStatus) {
         let previous_status = self.status.clone();
         self.status = status;
