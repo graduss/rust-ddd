@@ -8,3 +8,5 @@ authors.workspace = true
 [dependencies]
 domain.workspace = true
 application.workspace = true
+serde.workspace = true
+axum = "0.8.9"
