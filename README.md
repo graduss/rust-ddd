@@ -8,6 +8,7 @@ A study project exploring Domain-Driven Design (DDD) patterns in Rust, built aro
 |-------|-------------|
 | `domain` | Pure domain layer — aggregates, value objects, domain events, repository traits |
 | `application` | Application layer — use cases, commands, queries, ports |
+| `interface` | Interface layer — HTTP (Axum) and CLI (Clap) adapters |
 
 ## Getting started
 
@@ -62,3 +63,28 @@ Use cases implement the `UseCase` trait (`async fn execute(input) -> Result<Outp
 |---------|-------|--------|
 | `GetTaskByIdHandler` | `GetTaskByIdQuery { id }` | `TaskDto` |
 | `ListTaskQueryHandler` | `ListTaskQuery { status_filter }` | `Vec<TaskDto>` |
+
+## Interface layer
+
+Adapters wire `AppState` (holding type-erased `Arc<dyn UseCase<...>>` handles) to two delivery mechanisms:
+
+**HTTP API** (Axum)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/tasks` | Create a task |
+| `GET` | `/tasks` | List tasks (optional `?status=` filter) |
+| `GET` | `/tasks/:id` | Get a task by id |
+| `PATCH` | `/tasks/:id/:action` | Change task status (`start`/`complete`/`cancel`/`reopen`) |
+| `DELETE` | `/tasks/:id` | Delete a task |
+| `GET` | `/health` | Health check |
+
+**CLI** (Clap)
+
+```
+task create --title <TITLE> [--description <DESC>]
+task list [<STATUS>]
+task show <ID>
+task update <ID> <ACTION>
+task delete <ID>
+```

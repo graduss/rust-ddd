@@ -32,10 +32,11 @@ cargo llvm-cov --lcov --output-path lcov.info  # LCOV for editor integration
 
 ## Architecture
 
-This is a Cargo workspace (`task-manager`) studying Domain-Driven Design (DDD) patterns in Rust. Two crates:
+This is a Cargo workspace (`task-manager`) studying Domain-Driven Design (DDD) patterns in Rust. Three crates:
 
 - **`crates/domain`** — pure domain layer, no I/O or infrastructure dependencies
 - **`crates/application`** — application layer; orchestrates domain objects, defines ports, implements use cases
+- **`crates/interface`** — interface layer; HTTP (Axum) and CLI (Clap) adapters that delegate to the application layer via `AppState`
 
 ### DDD patterns in use
 
@@ -85,3 +86,30 @@ Todo ──start()──► InProgress ──complete()──► Completed ─�
 **`TaskDto` (`queries/dto.rs`)**: Flat read model with `id`, `title`, `description`, `status`, `created_at`, `updated_at`. Converted from `&Task` via `From<&Task>`.
 
 **Test mocks (`mocks.rs`, `#[cfg(test)]`)**: `MockTaskRepository` (in-memory `Mutex<Vec<Task>>`), `MockEventPublisher` (captures published events), `seed_task` helper, and `init_di` factory.
+
+### Interface layer (`crates/interface`)
+
+**`AppState` (`state.rs`)**: Holds type-erased `Arc<dyn UseCase<...>>` handles for all five use cases. Passed via Axum `State` extractor and the CLI runner. Uses type aliases (`DynCreateTask`, `DynChangeStatus`, etc.) for readability.
+
+**HTTP adapter (`http/`)**: Built on Axum 0.8.
+- `router.rs` — mounts routes under `/tasks` plus a `/health` check; applies `TraceLayer`
+- `handlers.rs` — one handler per route; extracts `State`, `Path`, `Query`, or `Json`; returns `Result<_, ApiError>`
+- `dto.rs` — `CreateTaskRequest` / `CreateTaskResponse` / `ListTasksRequest` (serde request/response bodies)
+- `error.rs` — `ApiError` implements `IntoResponse`; maps `ApplicationError` and `DomainError` to HTTP status codes
+
+HTTP routes:
+| Method | Path | Handler |
+|--------|------|---------|
+| `POST` | `/tasks` | `create_task` → 201 + `{ id }` |
+| `GET` | `/tasks` | `list_tasks` → 200 + `Vec<TaskDto>` (optional `?status=` filter) |
+| `GET` | `/tasks/:id` | `get_task` → 200 + `TaskDto` |
+| `PATCH` | `/tasks/:id/:action` | `update_task` → 204 |
+| `DELETE` | `/tasks/:id` | `delete_task` → 204 |
+| `GET` | `/health` | health check → "OK" |
+
+**CLI adapter (`cli.rs`)**: Built on Clap 4.
+- `Cli` / `Command` — subcommands: `create`, `list`, `show`, `update`, `delete`
+- `run_command(cli, state)` — async dispatcher; returns `anyhow::Result<String>` for the caller to print
+- `StatusActionCli` / `TaskStatusFilter` — `ValueEnum` wrappers that convert into domain types
+
+**Integration tests (`tests/http_api.rs`)**: Spin up an in-memory Axum router via `tower::ServiceExt::oneshot`; use `build_test_state()` from `tests/common` which wires mock repo + publisher into `AppState`.

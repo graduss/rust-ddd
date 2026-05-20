@@ -64,14 +64,13 @@ pub async fn get_task(
 // --- PATCH /tasks/:id/:action ---
 pub async fn update_task(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-    Path(action): Path<StatusAction>,
+    Path((id, action)): Path<(Uuid, StatusAction)>,
 ) -> Result<StatusCode, ApiError> {
     state
         .chenge_status
         .execute(ChangeStatusCommand {
             task_id: id.into(),
-            action: action,
+            action,
         })
         .await?;
 

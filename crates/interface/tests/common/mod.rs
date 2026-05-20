@@ -24,6 +24,7 @@ pub fn build_test_state() -> (AppState, Arc<MockTaskRepository>, Arc<MockEventPu
     (state, repo, publisher)
 }
 
+#[allow(dead_code)]
 pub async fn body_to_json(body: Body) -> serde_json::Value {
     let body = to_bytes(body, usize::MAX).await.unwrap();
     serde_json::from_slice(&body).unwrap()
