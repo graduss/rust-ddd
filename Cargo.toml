@@ -1,5 +1,4 @@
 [workspace]
-name = "task-manager"
 members = [
     "crates/application",
     "crates/domain",

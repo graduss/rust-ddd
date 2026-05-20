@@ -126,6 +126,7 @@ impl std::fmt::Display for TaskDescription {
 ///  └───cancel()────────►┘──► Cancelled
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TaskStatus {
     Todo,
     InProgress,

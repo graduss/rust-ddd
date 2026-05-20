@@ -1,3 +1,4 @@
+use domain::TaskStatus;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
@@ -12,7 +13,7 @@ pub struct CreateTaskResponse {
     pub id: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct ListTasksRequest {
-    pub status: Option<String>,
+    pub status: Option<TaskStatus>,
 }

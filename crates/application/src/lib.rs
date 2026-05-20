@@ -4,5 +4,4 @@ pub mod ports;
 pub mod queries;
 pub mod use_case;
 
-#[cfg(test)]
-mod mocks;
+pub mod mocks;
