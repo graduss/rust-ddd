@@ -77,6 +77,13 @@ impl From<DomainError> for ApiError {
                     message: error.to_string(),
                 },
             },
+            DomainError::InfrastructureError(_) => Self {
+                status: StatusCode::INTERNAL_SERVER_ERROR,
+                body: ApiErrorBody {
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: error.to_string(),
+                },
+            },
         }
     }
 }

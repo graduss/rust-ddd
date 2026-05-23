@@ -66,14 +66,45 @@ impl TaskRepository for PgTaskRepository {
     }
 
     async fn delete_by_id(&self, id: &TaskId) -> Result<(), DomainError> {
+        sqlx::query(
+            r#"
+            DELETE FROM tasks WHERE id = $1
+        "#,
+        )
+        .bind(*id.clone())
+        .execute(&self.pool)
+        .await
+        .map_err(|e| DomainError::InfrastructureError(e.to_string()))?;
         Ok(())
     }
 
     async fn update(&self, task: &Task) -> Result<(), DomainError> {
+        sqlx::query(
+            r#"
+            UPDATE tasks SET title = $2, description = $3, status = $4, updated_at = $5 WHERE id = $1
+        "#,
+        )
+        .bind(*task.id().clone())
+        .bind(task.title().to_string())
+        .bind(task.description().to_string())
+        .bind(TaskStatusSqlx::from(task.status().clone()))
+        .bind(task.updated_at().clone())
+        .execute(&self.pool)
+        .await
+        .map_err(|e| DomainError::InfrastructureError(e.to_string()))?;
         Ok(())
     }
 
     async fn exists(&self, id: &TaskId) -> Result<bool, DomainError> {
-        Ok(false)
+        sqlx::query_as::<_, (bool,)>(
+            r#"
+            SELECT EXISTS(SELECT 1 FROM tasks WHERE id = $1)
+        "#,
+        )
+        .bind(*id.clone())
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| DomainError::InfrastructureError(e.to_string()))
+        .map(|exists| exists.0)
     }
 }

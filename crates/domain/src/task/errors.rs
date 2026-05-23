@@ -30,4 +30,7 @@ pub enum DomainError {
 
     #[error("Task not found: {0}")]
     TaskNotFound(String),
+
+    #[error("Infrastructure error: {0}")]
+    InfrastructureError(String),
 }
