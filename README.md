@@ -8,7 +8,9 @@ A study project exploring Domain-Driven Design (DDD) patterns in Rust, built aro
 |-------|-------------|
 | `domain` | Pure domain layer — aggregates, value objects, domain events, repository traits |
 | `application` | Application layer — use cases, commands, queries, ports |
+| `infrastructure` | Port adapters — `PgTaskRepository` (sqlx/Postgres) and `RedisPublisher` (Redis pub/sub) |
 | `interface` | Interface layer — HTTP (Axum) and CLI (Clap) adapters |
+| `server` | Binary entry point — wires everything together and exposes `serve` / `cli` modes |
 
 ## Getting started
 
@@ -16,6 +18,24 @@ A study project exploring Domain-Driven Design (DDD) patterns in Rust, built aro
 cargo build
 cargo test
 ```
+
+### Running the server locally
+
+Start Postgres and Redis via Docker Compose, then point the server at them:
+
+```bash
+docker compose up -d
+
+export DATABASE_URL=postgres://tasks:tasks@localhost:5432/tasks
+export REDIS_URL=redis://localhost:6379
+export EVENTS_CHANNEL=task.events
+
+cargo run -p server -- serve --addr 0.0.0.0:8080
+# or run a one-off CLI command against the same backend:
+cargo run -p server -- cli list
+```
+
+Migrations live in `migrations/` at the workspace root and are applied via `sqlx` (e.g. `sqlx migrate run`). A `.env` file is loaded automatically by the server binary.
 
 ## Tools
 
