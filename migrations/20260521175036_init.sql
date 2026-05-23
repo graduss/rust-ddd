@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     description TEXT         NOT NULL DEFAULT '',
     status      task_status  NOT NULL DEFAULT 'todo',
     created_at  TIMESTAMPTZ  NOT NULL,
-    updated_at  TIMESTAMPTZ  NOT NULL,
+    updated_at  TIMESTAMPTZ  NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_tasks_status     ON tasks (status);
 CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks (created_at DESC);

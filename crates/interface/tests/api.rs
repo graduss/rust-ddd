@@ -1,12 +1,12 @@
 mod common;
+use application::mocks::seed_task;
 use axum::{
     body::Body,
     http::{Request, StatusCode},
 };
 use common::{body_to_json, build_test_state};
-use application::mocks::seed_task;
 use domain::{TaskRepository, TaskStatus};
-use interface::http::router::router;
+use interface::http::router;
 use serde_json::json;
 use tower::ServiceExt;
 use uuid::Uuid;
@@ -229,7 +229,10 @@ async fn test_update_task_start() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
-    assert_eq!(repo.find_by_id(&id).await.unwrap().status(), &TaskStatus::InProgress);
+    assert_eq!(
+        repo.find_by_id(&id).await.unwrap().status(),
+        &TaskStatus::InProgress
+    );
 }
 
 #[tokio::test]
@@ -256,7 +259,10 @@ async fn test_update_task_complete() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
-    assert_eq!(repo.find_by_id(&id).await.unwrap().status(), &TaskStatus::Completed);
+    assert_eq!(
+        repo.find_by_id(&id).await.unwrap().status(),
+        &TaskStatus::Completed
+    );
 }
 
 #[tokio::test]
@@ -277,7 +283,10 @@ async fn test_update_task_cancel() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
-    assert_eq!(repo.find_by_id(&id).await.unwrap().status(), &TaskStatus::Cancelled);
+    assert_eq!(
+        repo.find_by_id(&id).await.unwrap().status(),
+        &TaskStatus::Cancelled
+    );
 }
 
 #[tokio::test]
@@ -305,7 +314,10 @@ async fn test_update_task_reopen() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::NO_CONTENT);
-    assert_eq!(repo.find_by_id(&id).await.unwrap().status(), &TaskStatus::Todo);
+    assert_eq!(
+        repo.find_by_id(&id).await.unwrap().status(),
+        &TaskStatus::Todo
+    );
 }
 
 #[tokio::test]
